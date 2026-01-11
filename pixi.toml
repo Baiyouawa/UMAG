@@ -1,0 +1,89 @@
+[workspace]
+# 1. 将 [project] 改为 [workspace]
+name = "nuwats"
+version = "0.1.0"
+platforms = ["linux-64"]
+channels = [
+    # 2. 只保留 conda-forge 的清华镜像，删除了坏掉的 nvidia 镜像
+    "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge"
+]
+
+[tasks]
+# 数据预处理：归一化三个数据集
+normalize = { cmd = "python Datasets/data_provider/loadKddDataset.py && python Datasets/data_provider/loadGuangzhou.py && python Datasets/data_provider/loadPhysio.py", cwd = "." }
+
+# 生成缺失掩码与缺失版数据
+masks = { cmd = "python Datasets/data_provider/Kdd_mix.py && python Datasets/data_provider/Guangzhou_mix.py && python Datasets/data_provider/Physio_mix.py", cwd = "." }
+
+# 训练示例：TimesNet on KDD 20% 缺失 seed=3407
+train-timesnet-kdd20 = { cmd = "python Code/train.py --model timesnet --dataset kdd --missing_rate 0.2 --seed 3407", cwd = "." }
+
+# 训练示例：FGTI on Physio 40% 缺失 seed=3407
+train-fgti-physio40 = { cmd = "python Code/train.py --model fgti --dataset physio --missing_rate 0.4 --seed 3407", cwd = "." }
+
+# 批跑 5 种子并汇总六个指标（默认 seeds: 3407 3408 3409 3410 3411）
+# TimesNet：120 轮，lr=5e-3（与代码默认一致，显式写出便于核对）
+batch-timesnet-kdd20 = { cmd = "python Code/run_batch.py --model timesnet --dataset kdd --missing_rate 0.2 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-kdd40 = { cmd = "python Code/run_batch.py --model timesnet --dataset kdd --missing_rate 0.4 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-kdd60 = { cmd = "python Code/run_batch.py --model timesnet --dataset kdd --missing_rate 0.6 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-guangzhou20 = { cmd = "python Code/run_batch.py --model timesnet --dataset guangzhou --missing_rate 0.2 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-guangzhou40 = { cmd = "python Code/run_batch.py --model timesnet --dataset guangzhou --missing_rate 0.4 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-guangzhou60 = { cmd = "python Code/run_batch.py --model timesnet --dataset guangzhou --missing_rate 0.6 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-physio20 = { cmd = "python Code/run_batch.py --model timesnet --dataset physio --missing_rate 0.2 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-physio40 = { cmd = "python Code/run_batch.py --model timesnet --dataset physio --missing_rate 0.4 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+batch-timesnet-physio60 = { cmd = "python Code/run_batch.py --model timesnet --dataset physio --missing_rate 0.6 --seeds 3407 3408 3409 3410 3411 --epoch_diff 120 --learning_rate_diff 5e-3", cwd = "." }
+
+# FGTI：300 轮，lr=1e-3（显式写出便于核对）
+batch-fgti-kdd20 = { cmd = "python Code/run_batch.py --model fgti --dataset kdd --missing_rate 0.2 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-kdd40 = { cmd = "python Code/run_batch.py --model fgti --dataset kdd --missing_rate 0.4 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-kdd60 = { cmd = "python Code/run_batch.py --model fgti --dataset kdd --missing_rate 0.6 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-guangzhou20 = { cmd = "python Code/run_batch.py --model fgti --dataset guangzhou --missing_rate 0.2 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-guangzhou40 = { cmd = "python Code/run_batch.py --model fgti --dataset guangzhou --missing_rate 0.4 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-guangzhou60 = { cmd = "python Code/run_batch.py --model fgti --dataset guangzhou --missing_rate 0.6 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-physio20 = { cmd = "python Code/run_batch.py --model fgti --dataset physio --missing_rate 0.2 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-physio40 = { cmd = "python Code/run_batch.py --model fgti --dataset physio --missing_rate 0.4 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+batch-fgti-physio60 = { cmd = "python Code/run_batch.py --model fgti --dataset physio --missing_rate 0.6 --seeds 3407 3408 3409 3410 3411 --epoch_diff 300 --learning_rate_diff 1e-3", cwd = "." }
+
+[system-requirements]
+cuda = "12.0"
+
+[dependencies]
+# 3. 加上 == 号，消除警告
+python = "==3.9.23"
+pip = "==25.2"
+
+
+[pypi-options]
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+[pypi-dependencies]
+# --- 深度学习核心 (Pixi 会自动解析出所需的 nvidia-* 依赖) ---
+torch = "==2.8.0"
+torchvision = "==0.23.0"
+transformers = "==4.30.2"
+reformer-pytorch = "==1.4.4"
+timm = "==1.0.21"
+
+# --- 科学计算 ---
+numpy = "==1.26.4"
+pandas = "==1.5.3"
+scipy = "==1.10.1"
+scikit-learn = "==1.6.1"
+networkx = "==3.2.1"
+umap-learn = "==0.5.9.post2"
+torchsde = "==0.2.6"
+torchcde = "==0.2.5"
+torchdiffeq = "==0.2.5"
+
+# --- 可视化 ---
+matplotlib = "==3.7.1"
+plotly = "==6.4.0"
+altair = "==5.5.0"
+pillow = "==11.3.0"
+
+# --- 工具 ---
+tqdm = "==4.67.1"
+requests = "==2.32.5"
+beautifulsoup4 = "==4.14.2"
+pyyaml = "==6.0.3"
+gdown = "==5.2.0"
